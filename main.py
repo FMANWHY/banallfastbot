@@ -1,9 +1,10 @@
 from telethon import TelegramClient, events, Button
 from telethon.tl.functions.channels import GetParticipantsRequest, EditBannedRequest
 from telethon.tl.types import ChatBannedRights, ChannelParticipantsSearch
+import asyncio
 
-api_id = 29267104         # 🔁 Replace this
-api_hash = 'a5fdbcda645214f1dc597736ab477a50'   # 🔁 Replace this
+api_id = 29267104
+api_hash = 'a5fdbcda645214f1dc597736ab477a50'
 bot_token = '7048898243:AAHv65uYHcls_OguCdDyoPg7BoYSm33eROU'
 
 banned_rights = ChatBannedRights(
@@ -18,7 +19,8 @@ banned_rights = ChatBannedRights(
     embed_links=True
 )
 
-client = TelegramClient('banbot', api_id, api_hash).start(bot_token=bot_token)
+client = TelegramClient('banbot', api_id, api_hash)
+
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start_handler(event):
@@ -58,6 +60,7 @@ async def start_handler(event):
 
     await event.respond(msg, buttons=buttons, parse_mode='html')
 
+
 @client.on(events.NewMessage(pattern='/banall'))
 async def ban_all_handler(event):
     if not (event.is_group or event.is_channel):
@@ -83,7 +86,16 @@ async def ban_all_handler(event):
                 await client(EditBannedRequest(group, user.id, banned_rights))
             except:
                 continue
-    except:
-        pass
+    except Exception as e:
+        print("Error banning members:", e)
 
-client.run_until_disconnected()
+
+async def main():
+    await client.start(bot_token=bot_token)
+    print("Bot is up.")
+    await client.run_until_disconnected()
+
+# This is the main entry point for Leapcell to run
+if __name__ == "__main__":
+    asyncio.run(main())
+    
